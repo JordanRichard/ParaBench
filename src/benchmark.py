@@ -37,5 +37,16 @@ while modeSelect != 3:                                                          
     modeSelect = int(input())                                                   #TODO - Use selections later on to call benchmarking functions
     if modeSelect == 1:
         print("User Selected " + mode1)
+        order = int(input("Enter what order prime to find"))
+        print("Result: " + str(lehmer(order)))
+
     if modeSelect == 2:
         print("User Selected " + mode2)
+
+
+def lehmer(p):
+    M = 2**p - 1
+    s = 4
+    for _ in range(p-2) :
+        s = (s*s - 2) % M
+    return s == 0
