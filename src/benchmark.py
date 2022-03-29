@@ -1,5 +1,5 @@
 ################################################################################
-#   benchmark.py              Last Updated: 22 March 2022
+#   benchmark.py              Last Updated: 29 March 2022
 #
 #   Jordan Richard
 #
@@ -10,6 +10,11 @@
 import platform
 import wmi
 import psutil
+from time import perf_counter
+from concurrent.futures import ProcessPoolExecutor
+from concurrent.futures import ThreadPoolExecutor
+
+#from pyJoules.energy_meter import measure_energy
 
 sys = platform.uname()
 c = wmi.WMI()
@@ -18,33 +23,7 @@ winSys = c.Win32_ComputerSystem()[0]
 mode1 = "Integer Mode"
 mode2 = "Floating-Point Mode"
 
-#Lucas -Lehmer function testing up to the n'th power mersenne primes printing as it goes
-def ll_series (p):
-    ll_list=[4]
-
-    for i in range(1, p+1):
-        ll_list.append((ll_list[i-1]**2 - 2) % (2**p-1))
-        print(ll_list[i])                           #CHANGE TO PRINT LINE BY LINE
-        print("\n")
-    return ll_list
-
-# Primality test 2^p - 1
-# Return true if 2^p - 1 is prime
-def lucas_lehmer_test(p: int) -> bool:
-    """
-    >>> lucas_lehmer_test(p=7)
-    True
-
-    >>> lucas_lehmer_test(p=11)
-    False
-
-    # M_11 = 2^11 - 1 = 2047 = 23 * 89
-    """
-
-    if p < 2:
-        raise ValueError("p should not be less than 2!")
-    elif p == 2:
-        return True
+def lehmer(p: int) -> bool:
 
     s = 4
     M = (1 << p) - 1
@@ -53,13 +32,10 @@ def lucas_lehmer_test(p: int) -> bool:
     return s == 0
 
 
-if __name__ == "__main__":
-    print(lucas_lehmer_test(7))
-    print(lucas_lehmer_test(11))
 
 
 
-
+#Initial printout of system information and menu screen schowing benchamrking options
 print("_________________________________________________________________________________")
 print("------------------------------System Information---------------------------------")
 print(f"\tOS: {sys.system} {sys.release} ") #
@@ -69,30 +45,84 @@ print(f"\tCPU: {sys.processor}")
 print("\tNumber of Cores: " + str(psutil.cpu_count()))
 print(f"\tRAM: {psutil.virtual_memory()}")
 print("---------------------------------------------------------------------------------")
+
+
+modeSelect = 0;
 print("Welcome to ParaBench! Please select what benchmarking mode you would like to use." + '\n')
-print("[1] -> " + mode1 + '\n' + "[2] -> " + mode2 + "\n[3] -> Exit")
-print("_________________________________________________________________________________")
-
-modeSelect = 0
-
-while modeSelect != 3:                                                          #Main loop to keep program running while waiting for a user decision. Kills program on [3]
-    modeSelect = int(input())                                                   #TODO - Use selections later on to call benchmarking functions
-    if modeSelect == 1:
-        print("User Selected " + mode1)
-        order = int(input("Enter what order prime to find\n"))
-
-        if lucas_lehmer_test(order):
-            print(str(order) + "Is a mersenne prime")
-        else:
-            print(str(order) + "Is NOT a mersenne prime")
-
-    if modeSelect == 2:
-        print("User Selected " + mode2)
+modeSelect = int(input("[1] -> " + mode1 + '\n' + "[2] -> " + mode2
+    + "\n[9] -> Exit\n_________________________________________________________________________________\n"))
 
 
-#def lehmer(p):
-#    M = 2**p - 1
-#    s = 4
-#    for i in range(p-2) :
-#        s = (s*s - 2) % M
-#    return s == 0
+#User selects Integer benchmarking mode
+if modeSelect == 1:
+    print("User Selected " + mode1)
+
+    #Printout of selection for order of magnitude
+    print("[1] -> First 1x10^2 Primes\n" +  "[2] -> First 1x10^3 Primes\n"
+        +"[3] -> First 1x10^4 Primes\n" + "[4] -> First 1x10^5 Primes\n" + "[5] -> First 1x10^6 Primes\n")
+    mersenneOrder = int(input("Please Select an option\n"))
+
+
+    if mersenneOrder == 1:
+        print("Starting Benchmark...")
+        with ThreadPoolExecutor(15) as executor:
+            timeStart = perf_counter()
+
+            for result in executor.map(lehmer,range(2,100)):
+                print(result)
+            timeStop = perf_counter()
+
+            print("1E2 Benchmark Complete in ",timeStop-timeStart)
+
+
+    if mersenneOrder == 2:
+        print("Starting Benchmark...")
+        with ThreadPoolExecutor(15) as executor:
+            timeStart = perf_counter()
+
+            for result in executor.map(lehmer,range(2,1000)):
+                print(result)
+            timeStop = perf_counter()
+            print("1E3 Benchmark Complete!!", timeStop-timeStart)
+
+
+    if mersenneOrder == 3:
+        print("Starting Benchmark...")
+        with ThreadPoolExecutor() as executor:
+            timeStart = perf_counter()
+
+            for result in executor.map(lehmer,range(2,10000)):
+                print(result)
+            timeStop = perf_counter()
+            print("1E4 Benchmark Complete!!", timeStop-timeStart)
+
+
+    if mersenneOrder == 4:
+        print("Starting Benchmark...")
+        with ThreadPoolExecutor(15) as executor:
+            timeStart = perf_counter()
+
+            for result in executor.map(lehmer,range(2,100000)):
+                print(result)
+            timeStop = perf_counter()
+            print("1E5 Benchmark Complete!!", timeStop-timeStart)
+
+
+    if mersenneOrder == 5:
+        print("Starting Benchmark...")
+        with ThreadPoolExecutor(15) as executor:
+            timeStart = perf_counter()
+
+            for result in executor.map(lehmer,range(2,1000000)):
+                print(result)
+            timeStop = perf_counter()
+            print("1E6 Benchmark Complete!!", timeStop-timeStart)
+
+        #Single-threaded test (DEPRECATED)
+        #for x in range(2,1000000):
+        #    if lehmer(x):
+        #        print(x)
+
+
+if modeSelect == 2:                                                         # TODO: User selects floating point mode
+    print("User Selected " + mode2)
