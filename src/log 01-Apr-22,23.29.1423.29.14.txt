@@ -1,0 +1,23 @@
+------------------------------System Information---------------------------------
+	OS: Windows 10 
+	Machine Name: JRICH1-WORKSTATION
+	Version: 10.0.19042
+	CPU: Intel64 Family 6 Model 158 Stepping 9, GenuineIntel
+	Number of Cores: 8
+	RAM: svmem(total=17137545216, available=8480727040, percent=50.5, used=8656818176, free=8480727040)
+---------------------------------------------------------------------------------
+OUTPUT LOG:
+3
+5
+7
+13
+17
+19
+31
+61
+89
+107
+127
+521
+607
+Elapsed Time:   1.1902144000000001
